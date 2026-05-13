@@ -32,4 +32,3 @@ python manage.py runserver
 
 Admin site will be available at `http://127.0.0.1:8000/admin/`.
 
-To use a different database, update `DATABASES` in [backend/settings.py](backend/settings.py#L1).
