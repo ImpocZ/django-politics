@@ -1,0 +1,40 @@
+{% extends 'politicians/base.html' %}
+
+{% block content %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Vláda</th>
+                <th>Funkcionář</th>
+                <th>Úřad</th>
+                <th>Strana</th>
+                <th>Role</th>
+                <th>Začátek</th>
+                <th>Konec</th>
+                {% if perms.politicians.change_governmentofficial %}<th>Akce</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in officials %}
+            <tr>
+                <td>{{ item.government.prime_minister }}</td>
+                <td>{{ item.politician.name }} {{ item.politician.surname }}</td>
+                <td>{{ item.office.name }}</td>
+                <td>{{ item.party.name|default:'Nezávislý' }}</td>
+                <td>{{ item.role|default:'-' }}</td>
+                <td>{{ item.start_of_term }}</td>
+                <td>{{ item.end_of_term|default:'Dosud' }}</td>
+                {% if perms.politicians.change_governmentofficial %}
+                <td><a class="edit-link" href="{% url 'politicians:government_official_edit' item.pk %}">Upravit</a></td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="empty">Žádní vládní funkcionáři nebyli nalezeni.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

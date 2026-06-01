@@ -1,0 +1,40 @@
+{% extends 'politicians/base.html' %}
+
+{% block content %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Strana</th>
+                <th>Předseda</th>
+                <th>Založeno</th>
+                <th>Fotografie</th>
+                {% if perms.politicians.change_party %}<th>Akce</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for party in parties %}
+            <tr>
+                <td><span class="pill">{{ party.name }}</span></td>
+                <td>{{ party.leader }}</td>
+                <td>{{ party.founding }}</td>
+                <td>
+                    {% if party.photo_file %}
+                        <img class="thumb zoomable-photo" src="{{ party.photo_file.url }}" data-fullsrc="{{ party.photo_file.url }}" alt="{{ party.name }}">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                {% if perms.politicians.change_party %}
+                <td><a class="edit-link" href="{% url 'politicians:party_edit' party.pk %}">Upravit</a></td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="empty">Žádné politické strany nebyly nalezeny.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

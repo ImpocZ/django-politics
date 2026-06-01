@@ -1,0 +1,30 @@
+{% extends 'politicians/base.html' %}
+
+{% block content %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Ve funkci od</th>
+                <th>Premiér</th>
+                {% if perms.politicians.change_government %}<th>Akce</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for government in governments %}
+            <tr>
+                <td>{{ government.in_function }}</td>
+                <td>{{ government.prime_minister }}</td>
+                {% if perms.politicians.change_government %}
+                <td><a class="edit-link" href="{% url 'politicians:government_edit' government.pk %}">Upravit</a></td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="empty">Žádné vlády nebyly nalezeny.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

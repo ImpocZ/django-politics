@@ -1,0 +1,15 @@
+{% extends 'politicians/base.html' %}
+
+{% block content %}
+<div class="form-shell">
+    <form class="form-grid" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        {{ form.as_p }}
+        <div class="btn-row">
+            <button class="btn" type="submit">Registrovat</button>
+            <a class="btn secondary" href="{% url 'politicians:login' %}">Zpět na přihlášení</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

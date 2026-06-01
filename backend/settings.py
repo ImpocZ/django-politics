@@ -22,6 +22,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -72,10 +73,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'cs'
+TIME_ZONE = 'Europe/Prague'
 USE_I18N = True
 USE_TZ = True
+
+LANGUAGES = [
+    ('cs', 'Čeština'),
+    ('en', 'English'),
+]
+
+LOCALE_PATHS = [BASE_DIR / 'locale']
 
 STATIC_URL = '/static/'
 

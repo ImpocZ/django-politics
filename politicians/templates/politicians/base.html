@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} | Politika v Česku</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #ffffff;
+            --surface-2: #f8fafc;
+            --ink: #1f2937;
+            --muted: #6b7280;
+            --accent: #0f766e;
+            --accent-2: #155e75;
+            --line: #e5e7eb;
+            --shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+            --hero: linear-gradient(180deg, #eef2ff 0%, var(--bg) 30%, #f8fafc 100%);
+        }
+
+        body.dark-mode {
+            --bg: #0f172a;
+            --surface: #111827;
+            --surface-2: #1f2937;
+            --ink: #e5e7eb;
+            --muted: #94a3b8;
+            --accent: #2dd4bf;
+            --accent-2: #67e8f9;
+            --line: #334155;
+            --shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+            --hero: linear-gradient(180deg, #020617 0%, #0f172a 35%, #111827 100%);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--ink);
+            background: var(--hero);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--line);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .topbar-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .brand {
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            color: var(--accent-2);
+            text-decoration: none;
+        }
+
+        .menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .menu button {
+            border: 1px solid var(--line);
+            background: var(--surface);
+            color: var(--ink);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .menu-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: var(--surface);
+            min-width: 220px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .menu:hover .menu-content,
+        .menu:focus-within .menu-content {
+            display: block;
+        }
+
+        .menu-content a {
+            display: block;
+            padding: 10px 12px;
+            color: var(--ink);
+            text-decoration: none;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .menu-content a:last-child { border-bottom: 0; }
+
+        .menu-content a:hover {
+            background: rgba(15, 118, 110, 0.12);
+            color: var(--accent-2);
+        }
+
+        .auth-links {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .auth-links a,
+        .auth-links button {
+            border: 1px solid var(--line);
+            background: var(--surface);
+            color: var(--ink);
+            padding: 7px 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            font: inherit;
+        }
+
+        .auth-links .welcome {
+            color: var(--muted);
+            border: 0;
+            padding: 0;
+        }
+
+        .theme-toggle {
+            border: 1px solid var(--line);
+            background: var(--surface);
+            color: var(--ink);
+            padding: 7px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font: inherit;
+        }
+
+        .wrap {
+            max-width: 1100px;
+            margin: 22px auto;
+            padding: 0 16px 22px;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .title {
+            margin: 0;
+            font-size: 26px;
+            color: var(--accent-2);
+        }
+
+        .subtitle {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .table-wrap { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--line);
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--surface-2);
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 3px 8px;
+            background: rgba(34, 211, 238, 0.12);
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            border-radius: 999px;
+            font-size: 12px;
+            color: var(--accent-2);
+        }
+
+        .empty {
+            padding: 16px;
+            color: var(--muted);
+        }
+
+        img.thumb {
+            width: 52px;
+            height: 52px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+        }
+
+        .edit-link {
+            color: var(--accent-2);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .edit-link:hover {
+            text-decoration: underline;
+        }
+
+        .form-shell {
+            max-width: 560px;
+            margin: 16px;
+        }
+
+        .form-grid p {
+            margin: 0 0 12px;
+        }
+
+        .form-grid label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .form-grid input,
+        .form-grid select,
+        .form-grid textarea {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font: inherit;
+        }
+
+        .btn-row {
+            margin-top: 14px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            border: 1px solid var(--line);
+            background: #0f766e;
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px 12px;
+            text-decoration: none;
+            cursor: pointer;
+            font: inherit;
+        }
+
+        .btn.secondary {
+            background: #fff;
+            color: var(--ink);
+        }
+
+        .zoomable-photo {
+            cursor: zoom-in;
+        }
+
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.78);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .lightbox.open {
+            display: flex;
+        }
+
+        .lightbox-inner {
+            position: relative;
+            max-width: min(92vw, 1100px);
+            max-height: 88vh;
+        }
+
+        .lightbox img {
+            display: block;
+            max-width: 100%;
+            max-height: 88vh;
+            border-radius: 14px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+            background: #fff;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -14px;
+            right: -14px;
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            border: 0;
+            background: #fff;
+            color: #111827;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="{% url 'politicians:parties' %}">Politika v Česku</a>
+            <nav class="menu" aria-label="Navigace stránek">
+                <button type="button">Navigace</button>
+                <div class="menu-content">
+                    <a href="{% url 'politicians:parties' %}">Politické strany</a>
+                    <a href="{% url 'politicians:politicians' %}">Politici</a>
+                    <a href="{% url 'politicians:governments' %}">Vlády</a>
+                    <a href="{% url 'politicians:government_officials' %}">Vládní funkcionáři</a>
+                </div>
+            </nav>
+            <div class="auth-links">
+                {% if request.user.is_authenticated %}
+                    <span class="welcome">Přihlášen jako {{ request.user.username }}</span>
+                    <form method="post" action="{% url 'politicians:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit">Odhlásit</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'politicians:login' %}?next={{ request.get_full_path|urlencode }}">Přihlásit</a>
+                    <a href="{% url 'politicians:register' %}?next={{ request.get_full_path|urlencode }}">Registrace</a>
+                {% endif %}
+                <button class="theme-toggle" type="button" id="themeToggle">Tmavý režim</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <section class="panel">
+            <div class="panel-header">
+                <h1 class="title">{{ page_title }}</h1>
+                <p class="subtitle">Aktuální data načtená přímo z databáze</p>
+            </div>
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+
+    <div class="lightbox" id="lightbox" aria-hidden="true">
+        <div class="lightbox-inner">
+            <button class="lightbox-close" type="button" id="lightboxClose" aria-label="Zavřít">&times;</button>
+            <img id="lightboxImage" alt="Zvětšená fotografie">
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const body = document.body;
+            const toggle = document.getElementById('themeToggle');
+            const storageKey = 'politics-theme';
+            const savedTheme = localStorage.getItem(storageKey);
+
+            function applyTheme(theme) {
+                body.classList.toggle('dark-mode', theme === 'dark');
+                toggle.textContent = theme === 'dark' ? 'Světlý režim' : 'Tmavý režim';
+            }
+
+            applyTheme(savedTheme === 'dark' ? 'dark' : 'light');
+
+            toggle.addEventListener('click', function () {
+                const nextTheme = body.classList.contains('dark-mode') ? 'light' : 'dark';
+                localStorage.setItem(storageKey, nextTheme);
+                applyTheme(nextTheme);
+            });
+
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImage = document.getElementById('lightboxImage');
+            const lightboxClose = document.getElementById('lightboxClose');
+
+            function closeLightbox() {
+                lightbox.classList.remove('open');
+                lightbox.setAttribute('aria-hidden', 'true');
+                lightboxImage.removeAttribute('src');
+                lightboxImage.removeAttribute('alt');
+            }
+
+            document.querySelectorAll('.zoomable-photo').forEach(function (image) {
+                image.addEventListener('click', function () {
+                    const fullSrc = image.dataset.fullsrc || image.src;
+                    lightboxImage.src = fullSrc;
+                    lightboxImage.alt = image.alt || 'Fotografie';
+                    lightbox.classList.add('open');
+                    lightbox.setAttribute('aria-hidden', 'false');
+                });
+            });
+
+            lightbox.addEventListener('click', function (event) {
+                if (event.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+
+            lightboxClose.addEventListener('click', closeLightbox);
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    closeLightbox();
+                }
+            });
+        }());
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% extends 'politicians/base.html' %}
+
+{% block content %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Jméno</th>
+                <th>Titul</th>
+                <th>Věk</th>
+                <th>Fotografie</th>
+                {% if perms.politicians.change_politician %}<th>Akce</th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for person in politicians %}
+            <tr>
+                <td>{{ person.name }} {{ person.surname }}</td>
+                <td>{{ person.title|default:'-' }}</td>
+                <td>{{ person.age|default:'-' }}</td>
+                <td>
+                    {% if person.photo_file %}
+                        <img class="thumb zoomable-photo" src="{{ person.photo_file.url }}" data-fullsrc="{{ person.photo_file.url }}" alt="{{ person.name }} {{ person.surname }}">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                {% if perms.politicians.change_politician %}
+                <td><a class="edit-link" href="{% url 'politicians:politician_edit' person.pk %}">Upravit</a></td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="empty">Žádní politici nebyli nalezeni.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
