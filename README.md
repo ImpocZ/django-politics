@@ -1,6 +1,6 @@
 # Django backend for Politicians
 
-This repository contains a minimal Django backend and a `politicians` app.
+This repository contains a minimal Django backend and a `politicians` app to view and edit politician tables, goverments, officials, etc...
 
 Quick setup:
 
