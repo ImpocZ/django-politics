@@ -2,15 +2,29 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.views import LoginView
+from django.db.models import Prefetch
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
-from .models import Government, GovernmentOfficial, Party, Politician
+from .models import Government, GovernmentOfficial, Party, Politician, GovernmentParty, PoliticsParty
 
 
 def parties_page(request):
-    parties = Party.objects.all().order_by('name')
+    parties = (
+        Party.objects.prefetch_related(
+            Prefetch(
+                'politicsparty_set',
+                queryset=PoliticsParty.objects.select_related('politician').order_by(
+                    'politician__surname',
+                    'politician__name',
+                    'start_of_membership',
+                ),
+            )
+        )
+        .all()
+        .order_by('name')
+    )
     context = {
         'page_title': 'Politické strany',
         'parties': parties,
@@ -28,7 +42,16 @@ def politicians_page(request):
 
 
 def governments_page(request):
-    governments = Government.objects.all().order_by('-in_function')
+    governments = (
+        Government.objects.prefetch_related(
+            Prefetch(
+                'governmentparty_set',
+                queryset=GovernmentParty.objects.select_related('party').order_by('party__name'),
+            )
+        )
+        .all()
+        .order_by('-in_function')
+    )
     context = {
         'page_title': 'Vlády',
         'governments': governments,

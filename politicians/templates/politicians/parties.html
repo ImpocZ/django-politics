@@ -1,6 +1,99 @@
 {% extends 'politicians/base.html' %}
 
 {% block content %}
+<style>
+    .party-link {
+        all: unset;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .party-link:focus-visible {
+        outline: 2px solid var(--accent-2);
+        outline-offset: 3px;
+        border-radius: 999px;
+    }
+
+    .party-modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(2, 6, 23, 0.72);
+        z-index: 1001;
+    }
+
+    .party-modal.open {
+        display: flex;
+    }
+
+    .party-modal-card {
+        width: min(760px, 100%);
+        max-height: 88vh;
+        overflow: auto;
+        background: var(--surface);
+        color: var(--ink);
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+        padding: 22px;
+        position: relative;
+    }
+
+    .party-modal-kicker {
+        margin: 0 0 6px;
+        color: var(--muted);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .party-modal-title {
+        margin: 0 0 16px;
+        font-size: 24px;
+        color: var(--accent-2);
+    }
+
+    .party-modal-close {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        border: 1px solid var(--line);
+        background: var(--surface-2);
+        color: var(--ink);
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    .member-list {
+        margin: 0;
+        padding-left: 22px;
+    }
+
+    .member-list li {
+        margin-bottom: 12px;
+    }
+
+    .member-name {
+        display: block;
+        font-weight: 600;
+    }
+
+    .member-meta {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 13px;
+    }
+</style>
+
 <div class="table-wrap">
     <table>
         <thead>
@@ -15,7 +108,26 @@
         <tbody>
             {% for party in parties %}
             <tr>
-                <td><span class="pill">{{ party.name }}</span></td>
+                <td>
+                    <button type="button" class="party-link" data-party-name="{{ party.name }}" data-template-id="party-members-{{ party.pk }}">
+                        <span class="pill">{{ party.name }}</span>
+                    </button>
+                    <template id="party-members-{{ party.pk }}">
+                        <ol class="member-list">
+                            {% for membership in party.politicsparty_set.all %}
+                                <li>
+                                    <span class="member-name">{{ membership.politician }}</span>
+                                    <span class="member-meta">
+                                        {% if membership.start_of_membership %}od {{ membership.start_of_membership }}{% endif %}
+                                        {% if membership.end_of_membership %} do {{ membership.end_of_membership }}{% else %} dosud{% endif %}
+                                    </span>
+                                </li>
+                            {% empty %}
+                                <li>Žádní členové nebyli nalezeni.</li>
+                            {% endfor %}
+                        </ol>
+                    </template>
+                </td>
                 <td>{{ party.leader }}</td>
                 <td>{{ party.founding }}</td>
                 <td>
@@ -37,4 +149,60 @@
         </tbody>
     </table>
 </div>
+
+<div class="party-modal" id="partyModal" aria-hidden="true">
+    <div class="party-modal-card" role="dialog" aria-modal="true" aria-labelledby="partyModalTitle">
+        <button type="button" class="party-modal-close" id="partyModalClose" aria-label="Zavřít">&times;</button>
+        <p class="party-modal-kicker">Členové strany</p>
+        <h2 class="party-modal-title" id="partyModalTitle"></h2>
+        <div id="partyModalBody"></div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const modal = document.getElementById('partyModal');
+        const modalTitle = document.getElementById('partyModalTitle');
+        const modalBody = document.getElementById('partyModalBody');
+        const modalClose = document.getElementById('partyModalClose');
+
+        function closeModal() {
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            modalBody.innerHTML = '';
+        }
+
+        function openModal(partyName, templateId) {
+            const template = document.getElementById(templateId);
+            if (!template) {
+                return;
+            }
+
+            modalTitle.textContent = partyName;
+            modalBody.innerHTML = template.innerHTML;
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        document.querySelectorAll('.party-link').forEach(function (button) {
+            button.addEventListener('click', function () {
+                openModal(button.dataset.partyName || 'Strana', button.dataset.templateId);
+            });
+        });
+
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        modalClose.addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal.classList.contains('open')) {
+                closeModal();
+            }
+        });
+    }());
+</script>
 {% endblock %}

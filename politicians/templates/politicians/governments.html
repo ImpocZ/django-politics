@@ -7,6 +7,7 @@
             <tr>
                 <th>Ve funkci od</th>
                 <th>Premiér</th>
+                <th>Strany</th>
                 {% if perms.politicians.change_government %}<th>Akce</th>{% endif %}
             </tr>
         </thead>
@@ -15,13 +16,20 @@
             <tr>
                 <td>{{ government.in_function }}</td>
                 <td>{{ government.prime_minister }}</td>
+                <td>
+                    {% for government_party in government.governmentparty_set.all %}
+                        {{ government_party.party }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        Bez stran
+                    {% endfor %}
+                </td>
                 {% if perms.politicians.change_government %}
                 <td><a class="edit-link" href="{% url 'politicians:government_edit' government.pk %}">Upravit</a></td>
                 {% endif %}
             </tr>
             {% empty %}
             <tr>
-                <td colspan="4" class="empty">Žádné vlády nebyly nalezeny.</td>
+                <td colspan="{% if perms.politicians.change_government %}4{% else %}3{% endif %}" class="empty">Žádné vlády nebyly nalezeny.</td>
             </tr>
             {% endfor %}
         </tbody>
