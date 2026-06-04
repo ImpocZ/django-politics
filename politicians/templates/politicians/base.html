@@ -328,6 +328,44 @@
             cursor: pointer;
             box-shadow: var(--shadow);
         }
+        /* Details modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.78);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal-inner {
+            background: var(--surface);
+            color: var(--ink);
+            max-width: min(92vw, 900px);
+            max-height: 88vh;
+            overflow: auto;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            border: 0;
+            background: #fff;
+            color: #111827;
+            font-size: 22px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -373,6 +411,13 @@
         <div class="lightbox-inner">
             <button class="lightbox-close" type="button" id="lightboxClose" aria-label="Zavřít">&times;</button>
             <img id="lightboxImage" alt="Zvětšená fotografie">
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="detailsModal" aria-hidden="true">
+        <div class="modal-inner" role="dialog" aria-modal="true" aria-labelledby="detailsTitle">
+            <button class="modal-close" type="button" id="detailsClose" aria-label="Zavřít">&times;</button>
+            <div id="detailsContent"></div>
         </div>
     </div>
 
@@ -425,9 +470,28 @@
 
             lightboxClose.addEventListener('click', closeLightbox);
 
+            const detailsModal = document.getElementById('detailsModal');
+            const detailsClose = document.getElementById('detailsClose');
+            const detailsContent = document.getElementById('detailsContent');
+
+            function closeDetails() {
+                detailsModal.classList.remove('open');
+                detailsModal.setAttribute('aria-hidden', 'true');
+                detailsContent.innerHTML = '';
+            }
+
+            detailsClose.addEventListener('click', closeDetails);
+
+            detailsModal.addEventListener('click', function (event) {
+                if (event.target === detailsModal) {
+                    closeDetails();
+                }
+            });
+
             document.addEventListener('keydown', function (event) {
                 if (event.key === 'Escape') {
                     closeLightbox();
+                    closeDetails();
                 }
             });
         }());

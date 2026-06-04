@@ -7,6 +7,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView
 
+from django.http import JsonResponse
+
 from .models import Government, GovernmentOfficial, Party, Politician, GovernmentParty, PoliticsParty
 
 
@@ -39,6 +41,52 @@ def politicians_page(request):
         'politicians': politicians,
     }
     return render(request, 'politicians/politicians.html', context)
+
+
+def politician_detail_json(request, pk):
+    try:
+        p = Politician.objects.get(pk=pk)
+    except Politician.DoesNotExist:
+        return JsonResponse({'error': 'not found'}, status=404)
+
+    # party memberships
+    memberships = []
+    for m in PoliticsParty.objects.select_related('party').filter(politician=p).order_by('start_of_membership'):
+        party = m.party
+        leader_name = (party.leader or '').strip()
+        is_leader = leader_name == f"{p.name} {p.surname}" or leader_name == p.surname
+        memberships.append({
+            'party': party.name,
+            'start_of_membership': m.start_of_membership.isoformat(),
+            'end_of_membership': m.end_of_membership.isoformat() if m.end_of_membership else None,
+            'is_leader': is_leader,
+        })
+
+    # government posts
+    posts = []
+    for g in GovernmentOfficial.objects.select_related('government', 'office', 'party').filter(politician=p).order_by('-start_of_term'):
+        posts.append({
+            'government_id': g.government.id,
+            'government_in_function': g.government.in_function.isoformat(),
+            'prime_minister': g.government.prime_minister,
+            'office': g.office.name,
+            'role': g.role,
+            'start_of_term': g.start_of_term.isoformat(),
+            'end_of_term': g.end_of_term.isoformat() if g.end_of_term else None,
+            'party': g.party.name if g.party else None,
+        })
+
+    data = {
+        'id': p.pk,
+        'name': p.name,
+        'surname': p.surname,
+        'title': p.title,
+        'age': p.age,
+        'photo_url': p.photo_file.url if p.photo_file else None,
+        'memberships': memberships,
+        'government_posts': posts,
+    }
+    return JsonResponse(data)
 
 
 def governments_page(request):

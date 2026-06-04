@@ -15,7 +15,11 @@
         <tbody>
             {% for person in politicians %}
             <tr>
-                <td>{{ person.name }} {{ person.surname }}</td>
+                <td>
+                    <button type="button" class="details-btn" data-url="{% url 'politicians:politician_detail_json' person.pk %}">
+                        {{ person.name }} {{ person.surname }}
+                    </button>
+                </td>
                 <td>{{ person.title|default:'-' }}</td>
                 <td>{{ person.age|default:'-' }}</td>
                 <td>
@@ -37,4 +41,51 @@
         </tbody>
     </table>
 </div>
+<script>
+    (function () {
+        function fmtDate(d) {
+            if (!d) return '-';
+            try { return new Date(d).toLocaleDateString(); } catch (e) { return d; }
+        }
+
+        function buildMemberships(members) {
+            if (!members || members.length === 0) return '<p class="empty">Žádné členství ve stranách.</p>';
+            return '<ul>' + members.map(function (m) {
+                return '<li><strong>' + m.party + '</strong> (' + fmtDate(m.start_of_membership) + ' — ' + (m.end_of_membership ? fmtDate(m.end_of_membership) : 'dosud') + ')' + (m.is_leader ? ' <span class="pill">Vede</span>' : '') + '</li>';
+            }).join('') + '</ul>';
+        }
+
+        function buildPosts(posts) {
+            if (!posts || posts.length === 0) return '<p class="empty">Žádné vládní funkce.</p>';
+            return '<table><thead><tr><th>Funkce</th><th>Role</th><th>Strana</th><th>Období</th><th>Předseda vlády</th></tr></thead><tbody>' + posts.map(function (p) {
+                return '<tr><td>' + (p.office || '-') + '</td><td>' + (p.role || '-') + '</td><td>' + (p.party || '-') + '</td><td>' + fmtDate(p.start_of_term) + ' — ' + (p.end_of_term ? fmtDate(p.end_of_term) : 'dosud') + '</td><td>' + (p.prime_minister || '-') + '</td></tr>';
+            }).join('') + '</tbody></table>';
+        }
+
+        document.querySelectorAll('.details-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var url = btn.dataset.url;
+                fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+                    if (data.error) return;
+                    var html = '';
+                    html += '<h2 id="detailsTitle">' + (data.title ? data.title + ' ' : '') + data.name + ' ' + data.surname + '</h2>';
+                    if (data.photo_url) {
+                        html += '<p><img src="' + data.photo_url + '" alt="' + data.name + ' ' + data.surname + '" style="max-width:160px;border-radius:8px;border:1px solid var(--line);"></p>';
+                    }
+                    html += '<p><strong>Věk:</strong> ' + (data.age || '-') + '</p>';
+                    html += '<h3>Strany</h3>' + buildMemberships(data.memberships);
+                    html += '<h3>Vládní funkce</h3>' + buildPosts(data.government_posts);
+
+                    var detailsModal = document.getElementById('detailsModal');
+                    var detailsContent = document.getElementById('detailsContent');
+                    detailsContent.innerHTML = html;
+                    detailsModal.classList.add('open');
+                    detailsModal.setAttribute('aria-hidden', 'false');
+                }).catch(function (err) {
+                    console.error(err);
+                });
+            });
+        });
+    }());
+</script>
 {% endblock %}

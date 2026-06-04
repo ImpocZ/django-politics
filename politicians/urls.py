@@ -8,6 +8,7 @@ app_name = 'politicians'
 urlpatterns = [
     path('', views.parties_page, name='parties'),
     path('politicians/', views.politicians_page, name='politicians'),
+    path('politicians/<int:pk>/json/', views.politician_detail_json, name='politician_detail_json'),
     path('governments/', views.governments_page, name='governments'),
     path('government-officials/', views.government_officials_page, name='government_officials'),
     path('login/', views.SiteLoginView.as_view(), name='login'),
